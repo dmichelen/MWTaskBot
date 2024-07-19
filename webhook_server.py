@@ -5,6 +5,7 @@ from utils import fetch_monday_details, enviar_mensaje_whatsapp, obtener_destina
 from config import requests_config, generar_mensaje
 from up_contacts import ejecutar_actualizacion_contactos  # Importar la función para actualizar contactos
 from contacts import contacts  # Importar contactos desde contacts.py
+from credentials import HOST_SERVIDOR, PORT_NUMBER
 
 app = Flask(__name__)
 
@@ -134,4 +135,6 @@ if __name__ == '__main__':
     destinatario = contacts["Demian Michelen"]
     mensaje = "El servidor acaba de encender. Todo listo para el funcionamiento."
     enviar_mensaje_whatsapp(destinatario, mensaje)
-    app.run(port=5000)
+    app.run(host= HOST_SERVIDOR, port=PORT_NUMBER)
+
+    
