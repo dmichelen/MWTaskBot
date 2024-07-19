@@ -61,17 +61,9 @@ def actualizar_contacts(datos):
                     if phone_value:
                         phone_dict = json.loads(phone_value)
                         phone = phone_dict.get('phone')
-                        if column['id'] == 'status2__1':
-                            status_value = column.get('value')
-                            if status_value:
-                                status_dict = json.loads(status_value)
-                                es_persona = status_dict.get('text') == 'Persona'
-
-            if phone:
-                if es_persona:
-                    contactos[name] = '+1' + phone
-                else:
-                    contactos[name] = phone
+                        if phone:
+                            contactos[name] = phone
+                            break
     
     with open("contacts.py", "w") as f:
         f.write("# contacts.py\n\n")
