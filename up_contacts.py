@@ -90,4 +90,4 @@ def ejecutar_actualizacion_contactos():
     except Exception as e:
         print(e)
 
-ejecutar_actualizacion_contactos()
+#ejecutar_actualizacion_contactos()
