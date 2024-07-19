@@ -9,6 +9,17 @@ from credentials import HOST_SERVIDOR, PORT_NUMBER
 
 app = Flask(__name__)
 
+
+@app.route('/mmsg', methods=['POST'])
+def webhook():
+    datos1 = request.json
+
+    # Manejo del desafío de Monday.com
+    if 'challenge' in datos1:
+        return jsonify({'challenge': datos1['challenge']}), 200
+    
+    print("Hola Mundo")
+    
 # Almacenamiento temporal para los datos del webhook y los detalles adicionales
 data_store = {}
 
