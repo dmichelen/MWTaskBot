@@ -3,6 +3,7 @@
 from flask import Flask, request, jsonify
 from utils import fetch_monday_details, enviar_mensaje_whatsapp, obtener_destinatarios
 from config import requests_config, generar_mensaje
+from up_contacts import ejecutar_actualizacion_contactos  # Importar la función para actualizar contactos
 from contacts import contacts  # Importar contactos desde contacts.py
 
 app = Flask(__name__)
@@ -104,6 +105,9 @@ def webhook():
 
     # Almacenar los detalles adicionales obtenidos de Monday.com
     data_store[pulse_id]["details"] = datos2
+
+    # Llamar a la función para actualizar contactos
+    ejecutar_actualizacion_contactos()
 
     # Generar el mensaje para enviar por WhatsApp y obtener los nombres asignados
     mensaje, assigned_to_names = generar_mensaje(data_store[pulse_id], config)
