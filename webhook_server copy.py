@@ -1,3 +1,5 @@
+# webhook_server.py
+
 from flask import Flask, request, jsonify
 from utils import fetch_monday_details, enviar_mensaje_whatsapp, obtener_destinatarios
 from config import requests_config, generar_mensaje
@@ -9,7 +11,14 @@ app = Flask(__name__)
 # Almacenamiento temporal para los datos del webhook y los detalles adicionales
 data_store = {}
 
-def procesar_webhook(datos1, config_key):
+@app.route('/webhook', methods=['POST'])
+def webhook():
+    datos1 = request.json
+
+    # Manejo del desafío de Monday.com
+    if 'challenge' in datos1:
+        return jsonify({'challenge': datos1['challenge']}), 200
+
     # Imprimir los datos recibidos por el webhook
     print("Datos recibidos por el webhook:")
     print(datos1)
@@ -49,15 +58,36 @@ def procesar_webhook(datos1, config_key):
         "valor_data": valor_data,
     }
 
+    # Construir las claves para buscar en requests_config
+    config_key_specific = f"{board_id}.{group_id}.{event_type}.columnId_{column_id}.pulseId_{pulse_id}"
+    config_key_column_title = f"{board_id}.{group_id}.{event_type}.columnId_{column_id}.columnTitle_{column_title}"
+    config_key_general = f"{board_id}.{group_id}.{event_type}.columnId_{column_id}"
+    config_key_less_specific = f"{board_id}.{event_type}.columnId_{column_id}"
+
     # Determinar la configuración de la solicitud y la plantilla del mensaje
-    config = requests_config.get(config_key, None)
+    config = requests_config.get(
+        config_key_specific,
+        requests_config.get(
+            config_key_column_title,
+            requests_config.get(
+                config_key_general,
+                requests_config.get(config_key_less_specific, None)
+            )
+        )
+    )
 
     # Verificar qué configuración se está utilizando
     if config is None:
         print("No se encontró una configuración específica para los datos recibidos. No se enviará un mensaje de WhatsApp.")
         return jsonify({"status": "No configuration found"}), 200
+    elif config == requests_config.get(config_key_specific):
+        print("Usando configuración específica con Pulse ID")
+    elif config == requests_config.get(config_key_general):
+        print("Usando configuración específica general")
+    elif config == requests_config.get(config_key_column_title):
+        print("Usando configuración específica con Column Title")
     else:
-        print("Usando configuración específica")
+        print("Usando configuración menos específica")
 
     # Imprimir la consulta que se enviará a Monday.com
     query = config["query"]
@@ -98,23 +128,23 @@ def procesar_webhook(datos1, config_key):
     
     return jsonify({"status": "Message sent"}), 200
 
-@app.route('/reunion1', methods=['POST'])
-def reunion1():
-    datos1 = request.json
-    if 'challenge' in datos1:
-        return jsonify({'challenge': datos1['challenge']}), 200
-    return procesar_webhook(datos1, "reunion1_config_key")
+@app.route('/mmsg', methods=['POST'])
+def mmsg():
+    datosmmsg = request.json
 
-@app.route('/reunion2', methods=['POST'])
-def reunion2():
-    datos1 = request.json
-    if 'challenge' in datos1:
-        return jsonify({'challenge': datos1['challenge']}), 200
-    return procesar_webhook(datos1, "reunion2_config_key")
+    # Manejo del desafío de Monday.com
+    if 'challenge' in datosmmsg:
+        return jsonify({'challenge': datosmmsg['challenge']}), 200
+    
+    print(datosmmsg)
+    return jsonify({"status": "Message sent"}), 200
+
 
 if __name__ == '__main__':
     # Enviar mensaje al iniciar el servidor
     destinatario = contacts["Demian Michelen"]
     mensaje = "El servidor acaba de encender. Todo listo para el funcionamiento."
     enviar_mensaje_whatsapp(destinatario, mensaje)
-    app.run(host=HOST_SERVIDOR, port=PORT_NUMBER)
+    app.run(host= HOST_SERVIDOR, port=PORT_NUMBER)
+
+    

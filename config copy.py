@@ -1,3 +1,5 @@
+# config.py
+
 import json
 from datetime import datetime
 
@@ -45,8 +47,8 @@ queries = {
 
 # Diccionario de configuraciones de solicitudes y plantillas de mensajes
 requests_config = {
-    # Configuración para la ruta /reunion1
-    "reunion1_config_key": {
+    # Automatizacion WA-001
+    "6645066689.grupo_nuevo__1.update_column_value.columnId_estado_1__1": {
         "query": queries["specific_query_1"],
         "message_template": """
         🗓 *¡Nueva Reunión Creada!* 🗓 
@@ -61,8 +63,8 @@ requests_config = {
         """,
         "custom_extract_function": "extract_assigned_to_names"
     },
-    # Configuración para la ruta /reunion2
-    "reunion2_config_key": {
+    # Automatizacion WA-002
+    "6645066689.grupo_nuevo__1.update_column_value.columnId_estado_18__1.columnTitle_Dias Faltantes": {
         "query": queries["specific_query_1"],
         "message_template": """
         🗓 *¡Recordatorio Reunion Agendada!* 🗓 
@@ -111,6 +113,7 @@ def generar_mensaje(data, config):
     group_name = data.get('groupName', 'N/A')
     pulse_id = data.get('pulseId', 'N/A')
     dia_restante = data.get('valor_data', 'N/A')
+    
 
     details = data.get('details', {}).get('data', {}).get('items', [{}])[0]
     task_name = details.get('name', 'N/A')
