@@ -45,7 +45,7 @@ queries = {
 
 # Diccionario de configuraciones de solicitudes y plantillas de mensajes
 requests_config = {
-    # Configuración para la ruta /reunion1
+    # Configuración para la ruta /reunion1 - Este es al momento de crear una reunion
     "reunion1_config_key": {
         "query": queries["specific_query_1"],
         "message_template": """
@@ -57,11 +57,15 @@ requests_config = {
         
         *🕒 Hora:* {hora_prop}
         
+        *⌛ Duración:* {duracion}
+
+        *📍 Lugar:* {lugar}
+        
         *👥 Participantes:* {assigned_to}
         """,
         "custom_extract_function": "extract_assigned_to_names"
     },
-    # Configuración para la ruta /reunion2
+    # Configuración para la ruta /reunion2 - Esto es para recordatorios de reuniones
     "reunion2_config_key": {
         "query": queries["specific_query_1"],
         "message_template": """
@@ -72,6 +76,10 @@ requests_config = {
         *📅 Día:* {fecha_prop} *({nombre_dia})*
         
         *🕒 Hora:* {hora_prop}
+
+        *⌛ Duración:* {duracion}
+
+        *📍 Lugar:* {lugar}
 
         🔔 Se llevará a cabo *{dia_restante}*
         
@@ -112,7 +120,12 @@ def generar_mensaje(data, config):
     pulse_id = data.get('pulseId', 'N/A')
     dia_restante = data.get('valor_data', 'N/A')
 
-    details = data.get('details', {}).get('data', {}).get('items', [{}])[0]
+    details = data.get('details', {}).get('data', {}).get('items', [{}])
+    if not details:
+        print("No se encontraron detalles de items en los datos proporcionados.")
+        return None
+    details = details[0]
+
     task_name = details.get('name', 'N/A')
     column_details = details.get('column_values', [])
 
@@ -147,6 +160,20 @@ def generar_mensaje(data, config):
                 hora_prop = 'Pendiente'
             break
 
+    # Extraer la duración de la columna 'dropdown6__1'
+    duracion = 'N/A'
+    for col in column_details:
+        if col['id'] == 'dropdown6__1':
+            duracion = col.get('text', 'N/A')
+            break
+
+    # Extraer el lugar de la columna 'dropdown__1'
+    lugar = 'N/A'
+    for col in column_details:
+        if col['id'] == 'dropdown__1':
+            lugar = col.get('text', 'N/A')
+            break
+
     # Generar el mensaje usando la plantilla y los datos extraídos
     mensaje = config["message_template"].format(
         pulse_name=pulse_name,
@@ -158,7 +185,9 @@ def generar_mensaje(data, config):
         fecha_prop=fecha_prop,  # Añadir la fecha al mensaje
         nombre_dia=nombre_dia,  # Añadir el nombre del día al mensaje
         hora_prop=hora_prop,    # Añadir la hora al mensaje
-        dia_restante=dia_restante   # Añadir el texto de 'Es:' al mensaje
+        dia_restante=dia_restante,   # Añadir el texto de 'Es:' al mensaje
+        duracion=duracion,       # Añadir la duración al mensaje
+        lugar=lugar             # Añadir el lugar al mensaje
     )
 
     return mensaje, assigned_to.split(', ')

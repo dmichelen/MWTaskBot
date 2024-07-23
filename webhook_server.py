@@ -73,6 +73,10 @@ def procesar_webhook(datos1, config_key):
     print("Datos recibidos de Monday.com:")
     print(datos2)
 
+    if not datos2.get('data', {}).get('items'):
+        print("No se encontraron datos de items en la respuesta de Monday.com")
+        return jsonify({"status": "No items data found"}), 200
+
     # Almacenar los detalles adicionales obtenidos de Monday.com
     data_store[pulse_id]["details"] = datos2
 
@@ -97,6 +101,13 @@ def procesar_webhook(datos1, config_key):
         enviar_mensaje_whatsapp(destinatario, mensaje)
     
     return jsonify({"status": "Message sent"}), 200
+
+@app.route('/reunion0', methods=['POST'])
+def reunion0():
+    datos1 = request.json
+    if 'challenge' in datos1:
+        return jsonify({'challenge': datos1['challenge']}), 200
+    return procesar_webhook(datos1, "reunion0_config_key")
 
 @app.route('/reunion1', methods=['POST'])
 def reunion1():

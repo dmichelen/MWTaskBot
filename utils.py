@@ -10,9 +10,13 @@ def fetch_monday_details(pulse_id, query):
     response = requests.post(api_url, json=data, headers=headers)
 
     if response.status_code == 200:
-        return response.json()
+        result = response.json()
+        if 'errors' in result:
+            print(f"Errores en la respuesta de Monday.com: {result['errors']}")
+        return result
     else:
         print(f"Error al obtener detalles de Monday.com: {response.status_code}")
+        print(f"Respuesta de Monday.com: {response.text}")
         return None
 
 def enviar_mensaje_whatsapp(destinatario, mensaje):
