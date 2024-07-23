@@ -1,25 +1,13 @@
 # webhook_server.py
 
 from flask import Flask, request, jsonify
-from utils import fetch_monday_details, enviar_mensaje_whatsapp, obtener_destinatarios
+from utils import fetch_monday_details, enviar_mensaje_whatsapp, 
 from config import requests_config, generar_mensaje
 from up_contacts import ejecutar_actualizacion_contactos  # Importar la función para actualizar contactos
 from contacts import contacts  # Importar contactos desde contacts.py
 from credentials import HOST_SERVIDOR, PORT_NUMBER
 
-app = Flask(__name__)
-
-
-@app.route('/mmsg', methods=['POST'])
-def webhook():
-    datos1 = request.json
-
-    # Manejo del desafío de Monday.com
-    if 'challenge' in datos1:
-        return jsonify({'challenge': datos1['challenge']}), 200
-    
-    print("Hola Mundo")
-    
+app = Flask(__name__) 
 # Almacenamiento temporal para los datos del webhook y los detalles adicionales
 data_store = {}
 
@@ -138,6 +126,17 @@ def webhook():
     for destinatario in destinatarios:
         enviar_mensaje_whatsapp(destinatario, mensaje)
     
+    return jsonify({"status": "Message sent"}), 200
+
+@app.route('/mmsg', methods=['POST'])
+def mmsg():
+    datosmmsg = request.json
+
+    # Manejo del desafío de Monday.com
+    if 'challenge' in datosmmsg:
+        return jsonify({'challenge': datosmmsg['challenge']}), 200
+    
+    print(datosmmsg)
     return jsonify({"status": "Message sent"}), 200
 
 
