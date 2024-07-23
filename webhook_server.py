@@ -1,7 +1,7 @@
 # webhook_server.py
 
 from flask import Flask, request, jsonify
-from utils import fetch_monday_details, enviar_mensaje_whatsapp, 
+from utils import fetch_monday_details, enviar_mensaje_whatsapp, obtener_destinatarios
 from config import requests_config, generar_mensaje
 from up_contacts import ejecutar_actualizacion_contactos  # Importar la función para actualizar contactos
 from contacts import contacts  # Importar contactos desde contacts.py
