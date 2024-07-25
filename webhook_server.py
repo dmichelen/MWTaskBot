@@ -4,6 +4,9 @@ from config import requests_config, generar_mensaje
 from up_contacts import ejecutar_actualizacion_contactos  # Importar la función para actualizar contactos
 from contacts import contacts  # Importar contactos desde contacts.py
 from credentials import HOST_SERVIDOR, PORT_NUMBER
+import schedule
+import time
+import threading
 
 app = Flask(__name__) 
 # Almacenamiento temporal para los datos del webhook y los detalles adicionales
@@ -123,9 +126,33 @@ def reunion2():
         return jsonify({'challenge': datos1['challenge']}), 200
     return procesar_webhook(datos1, "reunion2_config_key")
 
+@app.route('/webhook', methods=['POST'])
+def webhook():
+    if request.method == 'POST':
+        data = request.get_json()
+        print(data)  # Aquí puedes procesar el webhook como desees
+        return jsonify({"status": "success"}), 200
+
+def verificar_y_agendar_mensaje_001():
+    import mensaje_001
+    schedule.every().day.at("15:12").do(lambda: print("Mensaje 001 enviado correctamente.") if mensaje_001.verificar_y_enviar_mensaje() else print("Mensaje 001 no se ejecutará hoy."))
+    
+    while True:
+        schedule.run_pending()
+        time.sleep(60)
+
 if __name__ == '__main__':
     # Enviar mensaje al iniciar el servidor
     destinatario = contacts["Demian Michelen"]
     mensaje = "El servidor acaba de encender. Todo listo para el funcionamiento."
     enviar_mensaje_whatsapp(destinatario, mensaje)
+        # Obtener la hora actual
+    current_time = time.localtime()
+
+    # Formatear la hora actual
+    formatted_time = time.strftime("%H:%M:%S", current_time)
+
+    # Imprimir la hora actual
+    print("La hora actual es:", formatted_time)
+    threading.Thread(target=verificar_y_agendar_mensaje_001).start()
     app.run(host=HOST_SERVIDOR, port=PORT_NUMBER)

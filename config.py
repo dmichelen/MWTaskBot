@@ -107,6 +107,7 @@ def extract_assigned_to_names(column_details):
             if col['text']:
                 names = [name.strip() for name in col['text'].split(',')]
                 assigned_to_names.update(names)
+                print(names)
     return ', '.join(assigned_to_names)
 
 # Función para generar el mensaje utilizando los datos y la plantilla proporcionada
